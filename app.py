@@ -7,7 +7,6 @@ import plotly.graph_objects as go
 from deep_translator import GoogleTranslator
 import hashlib
 import random
-import speech_recognition as sr
 from PIL import Image
 import os
 import base64
