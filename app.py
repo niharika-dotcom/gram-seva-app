@@ -7,6 +7,9 @@ import plotly.graph_objects as go
 from deep_translator import GoogleTranslator
 import hashlib
 import random
+from streamlit_mic_recorder import mic_recorder
+import speech_recognition as sr
+import io
 from PIL import Image
 import os
 import base64
@@ -380,21 +383,18 @@ def predict_priority(text, category):
     else:
         return "Low 🟢"
 
-def speech_to_text():
-    """Convert speech to text"""
-    try:
+def speech_to_text_widget():
+    audio = mic_recorder(start_prompt="🎤 Speak", stop_prompt="⏹ Stop", key='voice')
+    if audio:
         recognizer = sr.Recognizer()
-        with sr.Microphone() as source:
-            st.info("🎤 Listening... Speak now!")
-            audio = recognizer.listen(source, timeout=5)
-            text = recognizer.recognize_google(audio)
-            return text
-    except sr.UnknownValueError:
-        return "Could not understand audio"
-    except sr.RequestError:
-        return "Speech service unavailable"
-    except:
-        return "Error in speech recognition"
+        try:
+            with sr.AudioFile(io.BytesIO(audio['bytes'])) as source:
+                audio_data = recognizer.record(source)
+                text = recognizer.recognize_google(audio_data)
+                return text
+        except Exception:
+            return "Could not understand audio"
+    return None
 
 # ==================== AUTHENTICATION ====================
 def login():
@@ -494,13 +494,11 @@ def villager_dashboard(lang, ui):
             phone = st.text_input(ui["phone"])
             village = st.text_input(ui["village"], value=st.session_state.village)
             
-            if st.button(ui["speak"], use_container_width=True):
-                voice_text = speech_to_text()
-                if voice_text and "error" not in voice_text.lower():
-                    st.session_state['voice_text'] = voice_text
-                    st.success(f"Heard: {voice_text}")
-                else:
-                    st.error("Could not hear clearly. Please type.")
+           st.write(ui["speak"])
+            voice_text = speech_to_text_widget()
+            if voice_text and "error" not in voice_text.lower():
+                st.session_state['voice_text'] = voice_text
+                st.success(f"Heard: {voice_text}")
         
         with col2:
             categories = ["Road", "Water", "Electricity", "Garbage", "Health", "Other"]
