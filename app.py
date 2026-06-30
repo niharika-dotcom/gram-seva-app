@@ -493,19 +493,21 @@ def villager_dashboard(lang, ui):
             name = st.text_input(ui["your_name"])
             phone = st.text_input(ui["phone"])
             village = st.text_input(ui["village"], value=st.session_state.village)
-            
-           st.write(ui["speak"])
+
+            st.write(ui["speak"])
             voice_text = speech_to_text_widget()
             if voice_text and "error" not in voice_text.lower():
                 st.session_state['voice_text'] = voice_text
                 st.success(f"Heard: {voice_text}")
-        
+
         with col2:
             categories = ["Road", "Water", "Electricity", "Garbage", "Health", "Other"]
             category = st.selectbox(ui["category"], categories)
             default_text = st.session_state.get('voice_text', '')
             complaint_text = st.text_area(ui["describe"], height=100, value=default_text)
             uploaded_image = st.file_uploader(ui["upload_image"], type=['jpg', 'jpeg', 'png'])
+
+
             
             if st.button(ui["submit"], use_container_width=True):
                 if name and complaint_text:
